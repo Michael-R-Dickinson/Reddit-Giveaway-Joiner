@@ -7,6 +7,7 @@ import pytz
 import logging
 from praw.models import MoreComments
 from openai_comment_prompter import generate_comment_text_with_openai
+from s3_operations import S3JoinedGiveawaysHandler
 import os
 
 
@@ -49,11 +50,6 @@ def create_comment_text(post):
     return generate_comment_text_with_openai(post_text, authors_comments_text, context_comments_text)
 
 
-def check_for_existing_comment(post):
-    with open('joined_giveaways.txt', 'r') as file:
-        return post.id in [line.strip() for line in file]
-
-
 def post_within_timeframe(submission, time_threshold):
     current_time_utc = datetime.now(pytz.utc)
     post_time_utc = datetime.fromtimestamp(submission.created_utc, pytz.utc)
@@ -71,7 +67,7 @@ def get_giveaway_posts_in_timespan(reddit, target_subreddit, giveaway_tag, times
     return giveaway_posts_in_timeframe
 
 
-def join_giveaways(reddit):
+def join_giveaways(reddit, joined_giveaways_logger):
     current_local_time = datetime.now(pytz.utc).astimezone(my_timezone)
     active_giveaway_posts = get_giveaway_posts_in_timespan(
         reddit, TARGET_SUBREDDIT, GIVEAWAY_TAG, TIME_THRESHOLD)
@@ -83,7 +79,9 @@ def join_giveaways(reddit):
     ))
 
     for post in active_giveaway_posts:
-        has_already_commented = check_for_existing_comment(post)
+        has_already_commented = joined_giveaways_logger.check_if_giveaway_joined(
+            post.id)
+
         if not has_already_commented:
             comment_text = create_comment_text(post)
             print({
@@ -92,8 +90,7 @@ def join_giveaways(reddit):
             })
             post.reply(comment_text)
 
-            with open('joined_giveaways.txt', 'a') as file:
-                file.write(post.id + '\n')
+            joined_giveaways_logger.log_joined_giveaway(post.id)
 
             logging.info("Commented on post: {} at {}".format(
                 post.title, current_local_time.strftime(time_format)))
@@ -110,7 +107,11 @@ def main():
         password=PASSWORD
     )
 
-    join_giveaways(reddit)
+    joined_giveaways_logger = S3JoinedGiveawaysHandler(
+        "reddit-giveaway-bot-data-store", "RedditCommenter giveaways.txt"
+    )
+
+    join_giveaways(reddit, joined_giveaways_logger)
 
 
 if __name__ == "__main__":
