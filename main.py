@@ -110,9 +110,7 @@ def main():
         password=PASSWORD
     )
 
-    while True:
-        join_giveaways(reddit)
-        time.sleep(3)
+    join_giveaways(reddit)
 
 
 if __name__ == "__main__":
