@@ -86,3 +86,27 @@ resource google_cloud_scheduler_job cron_job {
     data = base64encode("trigger giveaway function")
   }
 }
+
+# The bucket to save our joined giveaway log in 
+
+resource "google_storage_bucket" "giveaways_data_bucket" {
+  name     = "reddit-giveaways-giveaway-data" 
+  location = "US" 
+}
+
+resource "google_storage_bucket_object" "giveaway_log" {
+  name   = "giveaway_log.txt"
+  bucket = google_storage_bucket.giveaways_data_bucket.name
+  source = "${path.module}/giveaway_log_seed.txt"
+
+  # Tells tofu not to replace the file with my local copy after the inital upload
+  lifecycle {
+    ignore_changes = [ source ]
+  }
+}
+
+resource "google_storage_bucket_iam_member" "giveaways_data_bucket_reader" {
+  bucket = google_storage_bucket.giveaways_data_bucket.name
+  role = "roles/storage.admin"
+  member = "serviceAccount:${google_cloudfunctions_function.cron_lambda.service_account_email}"
+}
