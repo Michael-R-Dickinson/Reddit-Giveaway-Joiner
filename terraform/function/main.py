@@ -7,7 +7,7 @@ import pytz
 import logging
 from praw.models import MoreComments
 from openai_comment_prompter import generate_comment_text_with_openai
-from s3_operations import S3JoinedGiveawaysHandler
+from s3_operations import GCSJoinedGiveawaysHandler
 import os
 
 
@@ -97,7 +97,9 @@ def join_giveaways(reddit, joined_giveaways_logger):
             logging.info(f"Already commented on post: {post.title}")
 
 
-def main():
+def main(*args):
+    print (args)
+
     reddit = praw.Reddit(
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
@@ -106,7 +108,7 @@ def main():
         password=PASSWORD
     )
 
-    joined_giveaways_logger = S3JoinedGiveawaysHandler(
+    joined_giveaways_logger = GCSJoinedGiveawaysHandler(
         "reddit-giveaways-giveaway-data", "giveaway_log.txt"
     )
 
