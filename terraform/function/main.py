@@ -107,7 +107,7 @@ def main():
     )
 
     joined_giveaways_logger = S3JoinedGiveawaysHandler(
-        "reddit-giveaway-bot-data-store", "RedditCommenter giveaways.txt"
+        "reddit-giveaways-giveaway-data", "giveaway_log.txt"
     )
 
     join_giveaways(reddit, joined_giveaways_logger)
