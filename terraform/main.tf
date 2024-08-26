@@ -78,7 +78,7 @@ resource google_pubsub_topic cron_topic {
 
 resource google_cloud_scheduler_job cron_job {
   name = "reddit-giveaways-cron-job"
-  schedule = "0 0 * * *"
+  schedule = "0 * * * *"
   time_zone = "UTC"
 
   pubsub_target {
