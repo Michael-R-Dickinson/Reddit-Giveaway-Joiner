@@ -3,6 +3,8 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+rm -f function_export.zip
+
 cd function
 
 FUNCTION_NAME="reddit-giveaway"
