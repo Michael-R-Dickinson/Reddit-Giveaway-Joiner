@@ -52,7 +52,7 @@ resource "google_cloudfunctions_function" "cron_lambda" {
   name        = "reddit-giveaways-cron"
 
   runtime     = "python312"
-  entry_point = "main.main"
+  entry_point = "main"
 
   source_archive_bucket = google_storage_bucket.function_code_bucket.name
   source_archive_object = google_storage_bucket_object.function_zip.name
@@ -83,6 +83,6 @@ resource google_cloud_scheduler_job cron_job {
 
   pubsub_target {
     topic_name = google_pubsub_topic.cron_topic.id
-    data = base64encode("test")
+    data = base64encode("trigger giveaway function")
   }
 }
