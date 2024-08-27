@@ -5,5 +5,3 @@ terraform.tfvars
 .terraform
 
 function_export.zip
-
-.DS_Store
