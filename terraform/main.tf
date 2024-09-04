@@ -25,6 +25,10 @@ resource "google_storage_bucket" "terraform_state" {
     enabled = true
   }
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   lifecycle_rule {
     action {
       type = "Delete"
@@ -78,7 +82,7 @@ resource google_pubsub_topic cron_topic {
 
 resource google_cloud_scheduler_job cron_job {
   name = "reddit-giveaways-cron-job"
-  schedule = "0 * * * *"
+  schedule = "3 6,18 * * *"
   time_zone = "UTC"
 
   pubsub_target {
